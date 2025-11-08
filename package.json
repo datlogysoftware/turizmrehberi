@@ -1,0 +1,21 @@
+{
+  "name": "turizm-rotalama",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "codegen": "node scripts/codegen.js",
+    "build": "echo \"Build placeholder (use pnpm -r build)\"",
+    "lint": "echo \"Lint placeholder\"",
+    "test": "echo \"Test placeholder\"",
+    "hooks:codegen": "node scripts/hooks-codegen.js",
+    "prebuild": "pnpm run codegen && pnpm run hooks:codegen",
+    "sdk:semver-check": "node scripts/sdk-semver-check.js"
+  },
+  "devDependencies": {
+    "openapi-typescript": "^7.4.1"
+  }
+}

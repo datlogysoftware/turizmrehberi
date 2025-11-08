@@ -1,0 +1,209 @@
+openapi: 3.1.0
+info:
+  title: Tourism Guide API
+  version: 1.0.0
+servers:
+  - url: https://api.example.com
+paths:
+  /places:
+    get:
+      summary: List places within bbox and optional category
+      parameters:
+        - in: query
+          name: bbox
+          required: true
+          description: minLon,minLat,maxLon,maxLat
+          schema:
+            type: string
+        - in: query
+          name: category
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Place'
+  /places/{id}:
+    get:
+      summary: Get place by id
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Place'
+        '404':
+          description: Not found
+  /routing:
+    get:
+      summary: Get a route between two points
+      parameters:
+        - in: query
+          name: mode
+          required: true
+          schema:
+            type: string
+            enum: [walk, drive, transit]
+        - in: query
+          name: from
+          required: true
+          description: lon,lat
+          schema:
+            type: string
+        - in: query
+          name: to
+          required: true
+          description: lon,lat
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RouteResponse'
+  /reviews:
+    post:
+      summary: Submit a review (moderated)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewInput'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Review'
+  /feedback:
+    post:
+      summary: Submit data correction request (goes to moderation)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FeedbackInput'
+      responses:
+        '201':
+          description: Created
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    GeoPoint:
+      type: object
+      properties:
+        lon: { type: number }
+        lat: { type: number }
+      required: [lon, lat]
+    OpenHours:
+      type: object
+      additionalProperties: true
+    PriceInfo:
+      type: object
+      properties:
+        currency: { type: string, example: TRY }
+        amount: { type: number }
+      required: [currency, amount]
+    Place:
+      type: object
+      properties:
+        id: { type: string }
+        name_tr: { type: string }
+        name_en: { type: string }
+        category: { type: string }
+        geom: { $ref: '#/components/schemas/GeoPoint' }
+        open_hours: { $ref: '#/components/schemas/OpenHours' }
+        price_info: { $ref: '#/components/schemas/PriceInfo' }
+      required: [id, name_tr, category, geom]
+    RouteLeg:
+      type: object
+      properties:
+        distance_m: { type: number }
+        duration_s: { type: number }
+        geometry:
+          type: object
+          properties:
+            type: { type: string, example: LineString }
+            coordinates:
+              type: array
+              items:
+                type: array
+                items:
+                  type: number
+                  minItems: 2
+      required: [distance_m, duration_s]
+    RouteResponse:
+      type: object
+      properties:
+        mode:
+          type: string
+          enum: [walk, drive, transit]
+        distance_m: { type: number }
+        duration_s: { type: number }
+        legs:
+          type: array
+          items: { $ref: '#/components/schemas/RouteLeg' }
+      required: [mode, distance_m, duration_s, legs]
+    ReviewInput:
+      type: object
+      properties:
+        placeId: { type: string }
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        comment: { type: string }
+      required: [placeId, rating]
+    Review:
+      type: object
+      properties:
+        id: { type: string }
+        placeId: { type: string }
+        rating: { type: integer }
+        comment: { type: string }
+        status:
+          type: string
+          enum: [pending, approved, rejected]
+        createdAt: { type: string, format: date-time }
+      required: [id, placeId, rating, status, createdAt]
+    FeedbackInput:
+      type: object
+      properties:
+        placeId: { type: string }
+        type:
+          type: string
+          enum: [hours, price, accessibility, metadata, other]
+        payload:
+          type: object
+        evidence:
+          type: array
+          items:
+            type: object
+            properties:
+              kind: { type: string, enum: [photo, url, text] }
+              url: { type: string }
+      required: [placeId, type, payload]
