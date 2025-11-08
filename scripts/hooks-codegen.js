@@ -6,8 +6,8 @@ function hasPath(p){ return spec.includes('\n  ' + p + ':'); }
 
 let code = `// Auto-generated React Query hooks. Do not edit manually.\n` +
 `import { useQuery, useMutation } from '@tanstack/react-query';\n` +
-`import { TourismApiClient } from '../packages/sdk/src/client';\n` +
-`import type { Place, RouteResponse, Review, ReviewInput, FeedbackInput } from '../packages/sdk/src/types';\n` +
+`import { TourismApiClient } from './client';\n` +
+`import type { Place, RouteResponse, Review, ReviewInput, FeedbackInput } from './types';\n` +
 `const client = new TourismApiClient();\n`;
 
 if (hasPath('/places')) {

@@ -1,0 +1,21 @@
+{
+  "name": "@turizm/api",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "dist/app/server.js",
+  "scripts": {
+    "dev": "tsx watch src/app/server.ts",
+    "build": "tsc",
+    "start": "node dist/app/server.js"
+  },
+  "dependencies": {
+    "fastify": "^5.6.1",
+    "fastify-plugin": "^5.1.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "@types/node": "^22.10.2",
+    "tsx": "^4.19.2"
+  }
+}
